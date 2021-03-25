@@ -42,7 +42,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
 
         if (amountToIncrement > stock.amount) {
-          return toast.error('Quantidade solicitada fora de estoque');
+          toast.error('Quantidade solicitada fora de estoque');
+          return;
         }
 
         const updatedCart = cart.map(cartItem => cartItem.id === productAlreadyCart.id ? {
@@ -79,7 +80,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const productToRemoved = cart.find(product => product.id === productId);
 
       if (!productToRemoved) {
-        return toast.error('Erro na remoção do produto');
+        toast.error('Erro na remoção do produto');
+        return;
       }
       
       const cartWithProductRemoved = cart.filter(product => product.id !== productToRemoved.id);
@@ -101,7 +103,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const productToUpdated = cart.find(product => product.id === productId);
 
       if (amount < 1 || !productToUpdated) {
-        return toast.error('Erro na alteração de quantidade do produto');
+        toast.error('Erro na alteração de quantidade do produto');
+        return;
       }
 
       const responseProduct = await api.get(`stock/${productToUpdated.id}`);
@@ -109,7 +112,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const stockIsNotAvaliable = amount > amountProductToUpdated;
 
       if (stockIsNotAvaliable) {
-        return toast.error('Quantidade solicitada fora de estoque');
+        toast.error('Quantidade solicitada fora de estoque');
+        return;
       }
 
       const cartWithProductUpdated = cart.map(product => product.id === productToUpdated.id ? {
