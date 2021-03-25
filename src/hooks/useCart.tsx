@@ -35,29 +35,30 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const addProduct = async (productId: number) => {
     try {
       const productAlreadyCart = cart.find(product => product.id === productId);
-
-      const { data: product } = await api.get<Product>(`products/${productId}`);
       const { data: stock } = await api.get<Stock>(`stock/${productId}`);
 
       if (productAlreadyCart) {
         const amountToIncrement = productAlreadyCart.amount + 1;
 
-        if (stock.amount >= amountToIncrement) {
-          const updatedCart = cart.map(cartItem => cartItem.id === productAlreadyCart.id ? {
-            ...cartItem,
-            amount: Number(cartItem.amount) + 1
-          } : cartItem);
 
-          setCart(updatedCart);
-
-          localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
-
-          toast.info('Product added to cart successfully');
-        } else {
-          toast.error('Quantidade solicitada fora de estoque');
+        if (amountToIncrement > stock.amount) {
+          return toast.error('Quantidade solicitada fora de estoque');
         }
 
+        const updatedCart = cart.map(cartItem => cartItem.id === productAlreadyCart.id ? {
+          ...cartItem,
+          amount: Number(cartItem.amount) + 1
+        } : cartItem);
+
+        setCart(updatedCart);
+
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
+
+        toast.info('Product added to cart successfully');
+
       } else {
+        const { data: product } = await api.get<Product>(`products/${productId}`);
+        
         if (stock.amount > 0) {
           const productToSave = [...cart, {...product, amount: 1}];
   
@@ -103,8 +104,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         return toast.error('Erro na alteração de quantidade do produto');
       }
 
-      const amountProductToUpdated: number = await api.get(`stock/${productToUpdated.id}`)
-        .then(response => response.data.amount);
+      const responseProduct = await api.get(`stock/${productToUpdated.id}`);
+      const amountProductToUpdated = responseProduct.data.amount;
       const stockIsNotAvaliable = amount > amountProductToUpdated;
 
       if (stockIsNotAvaliable) {
