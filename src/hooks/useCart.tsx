@@ -99,7 +99,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     try {
       const productToUpdated = cart.find(product => product.id === productId);
 
-      if (amount > 1 || !productToUpdated) {
+      if (amount < 1 || !productToUpdated) {
         return toast.error('Erro na alteração de quantidade do produto');
       }
 
